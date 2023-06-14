@@ -1,4 +1,5 @@
 ﻿using Domain.Model;
+using System.ComponentModel.Design;
 
 internal class Program
 {
@@ -9,6 +10,8 @@ internal class Program
         Console.WriteLine("Por favor, identifique-se");
         Console.WriteLine("");
         var pessoa = Identificacao();
+
+
     }
 
     static Pessoa Identificacao()
@@ -25,9 +28,49 @@ internal class Program
         pessoa.Cpf = Console.ReadLine();
         Console.Clear();
 
-        Console.WriteLine($"Como posso ajudar {pessoa.Nome}?");
+        Console.Write($"Como posso ajudar {pessoa.Nome}?\n" +
+            "1 - Depósito\n" +
+            "2 - Saque\n" +
+            "3 - Sair");
+
+        Console.WriteLine("");
+
+        Console.WriteLine("----------");
+        Console.WriteLine("Selecione uma opção:");
+
+        var option = int.Parse(Console.ReadLine());
+
+        while (option < 1 || option > 3)
+        {
+            Console.Clear();
+            Console.Write($"Como posso ajudar {pessoa.Nome}?\n" +
+            "1 - Depósito\n" +
+            "2 - Saque\n" +
+            "3 - Sair");
+
+            Console.WriteLine("");
+
+            Console.WriteLine("----------");
+            Console.WriteLine("Selecione uma opção:");
+
+            option = int.Parse(Console.ReadLine());
+        }
+
+        if (option == 1)
+        {
+            Console.WriteLine("Depósito");
+        }
+        else if (option == 2)
+        {
+            Console.WriteLine("Saque");
+        }
+        else if (option == 3)
+        {
+            Console.ReadKey();
+        }
+
         Console.ReadKey();
-        
+
         return pessoa;
     }
 }
