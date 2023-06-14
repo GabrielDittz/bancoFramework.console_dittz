@@ -28,17 +28,7 @@ internal class Program
         pessoa.Cpf = Console.ReadLine();
         Console.Clear();
 
-        Console.Write($"Como posso ajudar {pessoa.Nome}?\n" +
-            "1 - Depósito\n" +
-            "2 - Saque\n" +
-            "3 - Sair");
-
-        Console.WriteLine("");
-
-        Console.WriteLine("----------");
-        Console.WriteLine("Selecione uma opção:");
-
-        var option = int.Parse(Console.ReadLine());
+        int option = 0;
 
         while (option < 1 || option > 3)
         {
