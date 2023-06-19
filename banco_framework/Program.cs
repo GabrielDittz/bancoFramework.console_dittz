@@ -1,6 +1,8 @@
 ﻿using Application;
 using Domain.Model;
 using System.ComponentModel.Design;
+using CpfCnpjLibrary;
+using System.Security;
 
 internal class Program
 {
@@ -11,88 +13,127 @@ internal class Program
         Console.WriteLine("Por favor, identifique-se");
         Console.WriteLine("");
 
+        Console.ReadKey();
+
         var cliente = Identificacao();
+
         var calculo = new Calculo();
-        int option = 0;
+        int opcao = 0;
 
-        do
+        while(opcao != 3)
         {
-            Console.Clear();
-            Console.Write($"Como posso ajudar {cliente.Nome}?\n" +
-            "1 - Depósito\n" +
-            "2 - Saque\n" +
-            "3 - Sair");
+            opcao = Menu(cliente, opcao);
 
-            Console.WriteLine("");
-
-            Console.WriteLine("----------");
-            Console.WriteLine("Selecione uma opção:");
-
-            option = int.Parse(Console.ReadLine());
-
-            if (option == 1)
+            if(opcao == 1)
             {
                 Console.Clear();
 
-                Console.WriteLine("Digite o valor:");
+                Console.WriteLine("\"Digite o valor para depositar:");
+                var valor = float.Parse(Console.ReadLine());
 
-                float deposito = float.Parse(Console.ReadLine());
+                cliente.Saldo = calculo.Soma(cliente.Saldo, valor);
 
-                if (deposito < 0)
-                {
-                    Console.WriteLine("Valor inválido.");
+                Console.WriteLine($"Seu saldo atual é {cliente.Saldo.ToString("C")}");
 
-                    Console.ReadKey();
-                }
-                else
-                {
-                    Console.WriteLine($"Seu atual é: {calculo.Soma(cliente.Saldo, deposito).ToString("C")}");
-
-                    Console.ReadKey();
-                }
-            }
-            else if (option == 2)
+                Console.ReadLine();
+            }else if(opcao == 2)
             {
                 Console.Clear();
 
-                Console.WriteLine("Digite o valor:");
+                Console.WriteLine("Digite o valor para sacar:");
+                var valor = float.Parse(Console.ReadLine());
 
-                float saque = float.Parse(Console.ReadLine());
+                cliente.Saldo = calculo.Subtracao(cliente.Saldo, valor);
 
-                if (saque > cliente.Saldo)
-                {
-                    Console.WriteLine("Saldo insuficiente.");
+                Console.WriteLine($"Seu saldo atual é {cliente.Saldo.ToString("C")}");
 
-                    Console.ReadKey();
-                }
-                else
-                {
-                    Console.WriteLine($"Seu atual é: {calculo.Subtracao(cliente.Saldo, saque).ToString("C")}");
-
-                    Console.ReadKey();
-                }
+                Console.ReadLine();
             }
-        } while (option != 3);
+        }
     }
 
     static Cliente Identificacao()
     {
         var cliente = new Cliente();
 
-        Console.WriteLine("Seu número de identificação:");
-        cliente.Id = int.Parse(Console.ReadLine());
+        var erros = new List<string>
+        {
+            " "
+        };
 
-        Console.WriteLine("Seu nome:");
-        cliente.Nome = Console.ReadLine();
+        while (erros.Count() != 0)
+        {
+            erros.Clear();
 
-        Console.WriteLine("Seu CPF:");
-        cliente.Cpf = Console.ReadLine();
+            Console.Clear();
 
-        Console.WriteLine("Seu saldo:");
-        cliente.Saldo = float.Parse(Console.ReadLine());
+            Console.WriteLine("Seu número de identificação:");
+            var id = Console.ReadLine();
+
+            if (!int.TryParse(id, out _))
+            {
+                erros.Add("Identificador não é válido.");
+            }
+            else
+            {
+                cliente.Id = int.Parse(id);
+            }
+
+            Console.WriteLine("Seu nome:");
+            cliente.Nome = Console.ReadLine();
+
+            Console.WriteLine("Seu CPF:");
+            cliente.Cpf = Console.ReadLine();
+
+            if (Cpf.Validar(cliente.Cpf) == false)
+            {
+                erros.Add("CPF digitado não é válido.");
+            }
+
+            Console.WriteLine("Seu saldo:");
+            var saldo = Console.ReadLine();
+
+            if (!float.TryParse(saldo, out _))
+            {
+                erros.Add("Saldo não é válido.");
+            }
+            else
+            {
+                cliente.Saldo = float.Parse(saldo);
+            }
+
+            if (erros.Count() > 0)
+            {
+                foreach (var item in erros)
+                {
+                    Console.WriteLine(item);
+                }
+
+                Console.ReadLine();
+            }
+        }
 
         Console.Clear();
 
         return cliente;
+    }
+
+    static int Menu(Cliente cliente, int opcao)
+    {
+        Console.Clear();
+
+        Console.Write($"Como posso ajudar {cliente.Nome}?\n" +
+            "1 - Depósito\n" +
+            "2 - Saque\n" +
+            "3 - Sair");
+
+        Console.WriteLine("");
+
+        Console.WriteLine("----------");
+        Console.WriteLine("Selecione uma opção:");
+
+        opcao = int.Parse(Console.ReadLine());
+
+        return opcao;
     }
 }
