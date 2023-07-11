@@ -1,13 +1,20 @@
 ﻿using Application;
 using Domain.Model;
-using System.ComponentModel.Design;
 using CpfCnpjLibrary;
-using System.Security;
+using Microsoft.Extensions.DependencyInjection;
+using Repository;
 
 internal class Program
 {
     private static void Main(string[] args)
     {
+        #region Dependency injection
+        var serviceCollection = new ServiceCollection();
+        ConfigureServices(serviceCollection);
+        var provider = serviceCollection.BuildServiceProvider();
+        var service = provider.GetService<IClienteRepository>();
+        #endregion
+
         Console.Clear();
         Console.WriteLine("Seja bem vindo ao banco Framework");
         Console.WriteLine("Por favor, identifique-se");
@@ -15,7 +22,7 @@ internal class Program
 
         Console.ReadKey();
 
-        var cliente = Identificacao();
+        var cliente = Identificacao(service);
 
         var calculo = new Calculo();
         int opcao = 0;
@@ -33,6 +40,8 @@ internal class Program
 
                 cliente.Saldo = calculo.Soma(cliente.Saldo, valor);
 
+                service.Update(cliente);
+
                 Console.WriteLine($"Seu saldo atual é {cliente.Saldo.ToString("C")}");
 
                 Console.ReadLine();
@@ -45,6 +54,8 @@ internal class Program
 
                 cliente.Saldo = calculo.Subtracao(cliente.Saldo, valor);
 
+                service.Update(cliente);
+
                 Console.WriteLine($"Seu saldo atual é {cliente.Saldo.ToString("C")}");
 
                 Console.ReadLine();
@@ -52,7 +63,7 @@ internal class Program
         }
     }
 
-    static Cliente Identificacao()
+    static Cliente Identificacao(IClienteRepository clienteRepository)
     {
         var cliente = new Cliente();
 
@@ -77,6 +88,13 @@ internal class Program
             else
             {
                 cliente.Id = int.Parse(id);
+
+                var getCliente = clienteRepository.GetClienteById(cliente.Id);
+
+                if (getCliente != null)
+                {
+                    return getCliente;
+                }
             }
 
             Console.WriteLine("Seu nome:");
@@ -111,9 +129,10 @@ internal class Program
 
                 Console.ReadLine();
             }
-        }
 
-        Console.Clear();
+            Console.Clear();
+        }
+        clienteRepository.Add(cliente);
 
         return cliente;
     }
@@ -135,5 +154,10 @@ internal class Program
         opcao = int.Parse(Console.ReadLine());
 
         return opcao;
+    }
+
+    static void ConfigureServices(IServiceCollection services)
+    {
+        services.AddScoped<IClienteRepository, ClienteRepository>();
     }
 }
